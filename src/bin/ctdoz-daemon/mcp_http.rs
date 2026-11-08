@@ -183,6 +183,12 @@ async fn handle_one(d: &Arc<Daemon>, msg: &Value, client: &str) -> Option<Value>
         if tool == "zalo_send_message" {
             let text = args.get("text").and_then(Value::as_str).unwrap_or("");
             d.remember_sent(target, text).await;
+            // Remember what the AI said so replies to it can wake OpenClaw again.
+            if let Ok(st) = zalo_rust::store::MessageStore::open(crate::daemon::DB_PATH) {
+                if let Err(e) = crate::daemon::record_ai_sent(&st.conn, target, text, zalo_rust::login::unix_now()) {
+                    println!("🔌 MCP: không lưu được tin AI đã gửi ({e})");
+                }
+            }
         }
         if SEND_TOOLS.contains(&tool) {
             // Every send is reported (not throttled like error alerts).
