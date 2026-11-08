@@ -1,0 +1,33 @@
+# Chạy trên server:  docker compose up -d --build && ./unlock.sh
+services:
+  ctdoz-daemon:
+    build:
+      context: ../..
+      dockerfile: deploy/ctdoz-daemon/Dockerfile
+    image: ctdoz-daemon:local
+    container_name: ctdoz-daemon
+    restart: unless-stopped
+    # host network: REST API chỉ bind 127.0.0.1:17890 của host, webhook gọi được service trên host.
+    network_mode: host
+    command: ["--api-port", "17890"]
+    env_file: .env
+    environment:
+      CTDOZ_PASSPHRASE_FILE: /run/ctdoz/passphrase
+      CTDOZ_AUTOMATION_FILE: /config/automation.json
+      CTDOZ_VAULT_INTERVAL_SECS: "60"
+      # CTDOZ_MCP_BIND / CTDOZ_MCP_ALLOW_IPS nằm trong .env (do setup-tailnet.sh tự lấy IP Tailscale thật)
+    volumes:
+      - ./data:/data                          # chỉ chứa vault.enc (đã mã hoá)
+      - ./config:/config:ro                   # automation.json (không nhạy cảm)
+      - /run/ctdoz:/run/ctdoz                 # unlock.sh đặt mật khẩu ở đây (tmpfs host); daemon đọc rồi xoá
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+      - /work:size=256m,uid=10001,gid=10001,mode=0700   # dữ liệu giải mã chỉ nằm trong RAM
+    mem_limit: 900m
+    read_only: true
+    stop_grace_period: 60s
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }

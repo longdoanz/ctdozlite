@@ -1,0 +1,41 @@
+{
+  "webhook_url": "http://127.0.0.1:18080/zalo",
+  "forward_all": false,
+  "max_replies_per_minute": 10,
+  "webhook_timeout_secs": 60,
+  "ignore_threads": [],
+  "triggers": [
+    {
+      "name": "group-mention",
+      "keyword": "",
+      "scope": "group",
+      "thread_ids": [
+        "1234567890123456789"
+      ],
+      "on_mention": true,
+      "target": "openclaw",
+      "enabled": true
+    },
+    {
+      "name": "group-ai",
+      "keyword": "/ai",
+      "match_mode": "prefix",
+      "scope": "group",
+      "thread_ids": [
+        "1234567890123456789"
+      ],
+      "target": "openclaw",
+      "enabled": true
+    }
+  ],
+  "mcp": {
+    "allow_send": false,
+    "send_thread_ids": [],
+    "allow_autoreply_config": false
+  },
+  "openclaw": {
+    "url": "http://<IP_TAILSCALE_MAY_OPENCLAW>:18789/hooks/agent",
+    "agent_id": "main",
+    "max_per_thread_per_minute": 3
+  }
+}

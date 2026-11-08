@@ -1,0 +1,9 @@
+target
+.git
+web-bundle
+ctdozlite_landing
+docs
+re-notes
+deploy/ctdoz-daemon/data
+deploy/ctdoz-daemon/.env
+deploy/ctdoz-daemon/config
